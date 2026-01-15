@@ -20,8 +20,11 @@ use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
  */
 class RegisterController extends AbstractController
 {
+    public function __construct(private readonly \Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface $userPasswordHasher, private readonly \Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface $userAuthenticator, private readonly \Xmall\Security\LoginAuthenticator $authenticator)
+    {
+    }
     #[Route('/inscription', name: 'register')]
-    public function index(Request $request, UserPasswordHasherInterface $userPasswordHasher, UserAuthenticatorInterface $userAuthenticator, LoginAuthenticator $authenticator, EntityManagerInterface $em): Response
+    public function index(Request $request, EntityManagerInterface $em): Response
     {
         $user = new User();
 
@@ -29,7 +32,7 @@ class RegisterController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $user->setPassword($userPasswordHasher->hashPassword($user,$form->get('password')->getData()));
+            $user->setPassword($this->userPasswordHasher->hashPassword($user,$form->get('password')->getData()));
 
             $em->persist($user);
             $em->flush();
@@ -39,9 +42,9 @@ class RegisterController extends AbstractController
             (new Mail)->send($user->getEmail(), $user->getFirstname(), "Bienvenue sur XMALL", $content);
 
             // Loggin auto
-            return $userAuthenticator->authenticateUser(
+            return $this->userAuthenticator->authenticateUser(
                 $user,
-                $authenticator,
+                $this->authenticator,
                 $request
             );
         }

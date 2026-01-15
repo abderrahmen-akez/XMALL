@@ -32,3 +32,6 @@ Thumbs.db
 # Fichiers sensibles
 .env
 !.env.dist  # garde .env.dist si tu en as un
+###> phpstan/phpstan ###
+phpstan.neon
+###< phpstan/phpstan ###

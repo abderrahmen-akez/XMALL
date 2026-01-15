@@ -18,6 +18,9 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class AccountController extends AbstractController
 {
+    public function __construct(private readonly \Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface $passwordHasher, private readonly \Xmall\Repository\OrderRepository $repository)
+    {
+    }
     #[Route('/compte', name: 'account')]
     public function index(): Response
     {
@@ -29,7 +32,7 @@ class AccountController extends AbstractController
      * Permet la modification du mot de passe d'un utilisateur sur une page dédiée
      */
     #[Route('/compte/mot-de-passe', name: 'account_password')]
-    public function changePassword(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $em): Response
+    public function changePassword(Request $request, EntityManagerInterface $em): Response
     {
         $user = $this->getUser();
         $form = $this->createForm(ChangePasswordType::class, $user);
@@ -38,9 +41,9 @@ class AccountController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $old_password = $form->get('old_password')->getData();
             $new_password = $form->get('new_password')->getData();
-            $isOldPasswordValid = $passwordHasher->isPasswordValid($user, $old_password);
+            $isOldPasswordValid = $this->passwordHasher->isPasswordValid($user, $old_password);
             if ($isOldPasswordValid) {
-                $password = $passwordHasher->hashPassword($user,$new_password);
+                $password = $this->passwordHasher->hashPassword($user,$new_password);
                 $user->setPassword($password);
                 $em->flush();
                 $this->addFlash(
@@ -65,9 +68,9 @@ class AccountController extends AbstractController
      * Affiche la vue de toutes les commandes d'un utilisateur
      */
     #[Route('/compte/commandes', name: 'account_orders')]
-    public function showOrders(OrderRepository $repository): Response
+    public function showOrders(): Response
     {
-        $orders = $repository->findPaidOrdersByUser($this->getUser());
+        $orders = $this->repository->findPaidOrdersByUser($this->getUser());
         return $this->render('account/orders.html.twig', [
             'orders' => $orders
         ]);

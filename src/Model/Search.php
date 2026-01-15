@@ -29,7 +29,7 @@ class Search
      *
      * @return  self
      */ 
-    public function setString($string)
+    public function setString($string): static
     {
         $this->string = $string;
 
@@ -49,7 +49,7 @@ class Search
      *
      * @return  self
      */ 
-    public function setCategories($categories)
+    public function setCategories($categories): static
     {
         $this->categories = $categories;
 

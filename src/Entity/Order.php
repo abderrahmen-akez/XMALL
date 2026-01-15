@@ -134,11 +134,9 @@ class Order
 
     public function removeOderDetail(OrderDetails $oderDetail): self
     {
-        if ($this->orderDetails->removeElement($oderDetail)) {
-            // set the owning side to null (unless already changed)
-            if ($oderDetail->getBindedOrder() === $this) {
-                $oderDetail->setBindedOrder(null);
-            }
+        // set the owning side to null (unless already changed)
+        if ($this->orderDetails->removeElement($oderDetail) && $oderDetail->getBindedOrder() === $this) {
+            $oderDetail->setBindedOrder(null);
         }
 
         return $this;

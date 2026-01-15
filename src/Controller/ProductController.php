@@ -12,8 +12,11 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ProductController extends AbstractController
 {
+    public function __construct(private readonly \Xmall\Repository\ProductRepository $repository)
+    {
+    }
     #[Route('/articles', name: 'product')]
-    public function index(ProductRepository $repository, Request $request): Response
+    public function index(Request $request): Response
     {
        
         // Si recherche exécutée, $products contiendra les résultats filtrés
@@ -22,9 +25,9 @@ class ProductController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $products = $repository->findWithSearch($search);
+            $products = $this->repository->findWithSearch($search);
         } else {
-            $products = $repository->findAll();
+            $products = $this->repository->findAll();
         }
 
         
@@ -35,9 +38,9 @@ class ProductController extends AbstractController
     }
 
     #[Route('/articles/{slug}', name: 'product_show')]
-    public function show(ProductRepository $repository, string $slug): Response
+    public function show(string $slug): Response
     {
-        $product = $repository->findOneBySlug($slug);
+        $product = $this->repository->findOneBySlug($slug);
 
         if (!$product) {
             return $this->redirectToRoute('product');

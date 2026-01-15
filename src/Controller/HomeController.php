@@ -10,11 +10,14 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class HomeController extends AbstractController
 {
-    #[Route('/', name: 'home')]
-    public function index(ProductRepository $productRepository, HeadersRepository $headersRepository): Response
+    public function __construct(private readonly \Xmall\Repository\ProductRepository $productRepository, private readonly \Xmall\Repository\HeadersRepository $headersRepository)
     {
-        $products = $productRepository->findByIsInHome(1);
-        $headers = $headersRepository->findAll();
+    }
+    #[Route('/', name: 'home')]
+    public function index(): Response
+    {
+        $products = $this->productRepository->findByIsInHome(1);
+        $headers = $this->headersRepository->findAll();
         return $this->render('home/index.html.twig', [
             'carousel' => true,  //Le caroussel ne s'affiche que sur la page d'accueil (voir base.twig)
             'top_products' => $products,

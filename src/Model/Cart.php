@@ -9,12 +9,20 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
  */
 class Cart 
 {
-    private $session;
-
+    /**
+     * @var \Xmall\Repository\ProductRepository
+     */
+    public $repository;
+    private \Symfony\Component\HttpFoundation\Session\SessionInterface $session;
+    private RequestStack $requestStack;
     public function __construct(SessionInterface $session, ProductRepository $repository)
     {
-        $this->session = $session;
+        $this->requestStack = $requestStack;
         $this->repository = $repository;
+    }
+    private function getSession(): SessionInterface
+    {
+        return $this->requestStack->getSession();
     }
 
 
@@ -26,7 +34,7 @@ class Cart
      */
     public function add(int $id):void
     {
-        $cart = $this->session->get('cart', []);
+        $cart = $this->getSession()->get('cart', []);
 
         if (empty($cart[$id])) {
             $cart[$id] = 1;
@@ -34,7 +42,7 @@ class Cart
             $cart[$id]++;
         }
 
-        $this->session->set('cart', $cart);
+        $this->getSession()->set('cart', $cart);
 
     }
 
@@ -45,7 +53,7 @@ class Cart
      */
     public function get(): array
     {
-        return $this->session->get('cart');
+        return $this->getSession()->get('cart');
     }
 
 
@@ -56,7 +64,7 @@ class Cart
      */
     public function remove(): void
     {
-        $this->session->remove('cart');
+        $this->getSession()->remove('cart');
     }
 
 
@@ -68,9 +76,9 @@ class Cart
      */
     public function removeItem(int $id): void
     {
-        $cart = $this->session->get('cart', []);
+        $cart = $this->getSession()->get('cart', []);
         unset($cart[$id]);
-        $this->session->set('cart', $cart);
+        $this->getSession()->set('cart', $cart);
     }
 
 
@@ -82,13 +90,13 @@ class Cart
      */
     public function decreaseItem(int $id): void
     {
-        $cart = $this->session->get('cart', []);
+        $cart = $this->getSession()->get('cart', []);
         if ($cart[$id] < 2) {
             unset($cart[$id]);
         } else {
             $cart[$id]--;
         }
-        $this->session->set('cart', $cart);
+        $this->getSession()->set('cart', $cart);
     }
 
 
@@ -108,7 +116,7 @@ class Cart
             ],
         ];
 
-        $cart = $this->session->get('cart', []);
+        $cart = $this->getSession()->get('cart', []);
         if ($cart) {
             foreach ($cart as $id => $quantity) {
                 $currentProduct = $this->repository->find($id);

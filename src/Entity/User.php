@@ -133,7 +133,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @see UserInterface
      */
-    public function eraseCredentials()
+    public function eraseCredentials(): void
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
@@ -188,11 +188,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function removeAddress(Address $address): self
     {
-        if ($this->addresses->removeElement($address)) {
-            // set the owning side to null (unless already changed)
-            if ($address->getUser() === $this) {
-                $address->setUser(null);
-            }
+        // set the owning side to null (unless already changed)
+        if ($this->addresses->removeElement($address) && $address->getUser() === $this) {
+            $address->setUser(null);
         }
 
         return $this;
@@ -218,11 +216,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function removeOrder(Order $order): self
     {
-        if ($this->orders->removeElement($order)) {
-            // set the owning side to null (unless already changed)
-            if ($order->getUser() === $this) {
-                $order->setUser(null);
-            }
+        // set the owning side to null (unless already changed)
+        if ($this->orders->removeElement($order) && $order->getUser() === $this) {
+            $order->setUser(null);
         }
 
         return $this;

@@ -17,13 +17,14 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DashboardController extends AbstractDashboardController
 {
-    /** 
-     * @Route("/admin", name="admin")
-     */
+    public function __construct(private readonly \EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator $adminUrlGenerator)
+    {
+    }
+    #[Route(path: '/admin', name: 'admin')]
     public function index(): Response
     {
         // redirect to some CRUD controller
-        $routeBuilder = $this->get(AdminUrlGenerator::class);
+        $routeBuilder = $this->adminUrlGenerator;
 
         return $this->redirect($routeBuilder->setController(OrderCrudController::class)->generateUrl());
     }

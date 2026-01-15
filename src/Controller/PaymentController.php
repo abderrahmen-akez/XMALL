@@ -15,14 +15,17 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class PaymentController extends AbstractController
 {
+    public function __construct(private readonly \Xmall\Repository\OrderRepository $repository)
+    {
+    }
     /**
      * Etape de vérification avant confirmation du paiement
      */
     #[Route('/commande/checkout/{reference}', name: 'checkout')]
-    public function payment(OrderRepository $repository, $reference, EntityManagerInterface $em): Response
+    public function payment($reference, EntityManagerInterface $em): Response
     {
         // Récupération des produits de la dernière commande et formattage dans un tableau pour Stripe
-        $order = $repository->findOneByReference($reference);
+        $order = $this->repository->findOneByReference($reference);
         if (!$order) {
             throw $this->createNotFoundException('Cette commande n\'existe pas');
         }
@@ -74,9 +77,9 @@ class PaymentController extends AbstractController
      * Méthode appelée lorsque le paiement est validé
      */
     #[Route('/commande/valide/{stripeSession}', name: 'payment_success')]
-    public function paymentSuccess(OrderRepository $repository, $stripeSession, EntityManagerInterface $em, Cart $cart) 
+    public function paymentSuccess($stripeSession, EntityManagerInterface $em, Cart $cart): \Symfony\Component\HttpFoundation\Response 
     {
-        $order = $repository->findOneByStripeSession($stripeSession);
+        $order = $this->repository->findOneByStripeSession($stripeSession);
         if (!$order || $order->getUser() != $this->getUser()) {
             throw $this->createNotFoundException('Commande innaccessible');
         }
@@ -107,9 +110,9 @@ class PaymentController extends AbstractController
      * Commande annullée (clic sur retour dans la fenêtre)
      */
     #[Route('/commande/echec/{stripeSession}', name: 'payment_fail')]
-    public function paymentFail(OrderRepository $repository, $stripeSession) 
+    public function paymentFail($stripeSession): \Symfony\Component\HttpFoundation\Response 
     {
-        $order = $repository->findOneByStripeSession($stripeSession);
+        $order = $this->repository->findOneByStripeSession($stripeSession);
         if (!$order || $order->getUser() != $this->getUser()) {
             throw $this->createNotFoundException('Commande innaccessible');
         }

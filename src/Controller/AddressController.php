@@ -10,9 +10,15 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class AddressController extends AbstractController
 {
+    private Symfony\Component\HttpFoundation\RequestStack $requestStack;
+    public function __construct(RequestStack $requestStack) 
+    {
+        $this->requestStack = $requestStacks;
+    }
     #[Route('compte/adresses', name: 'account_address')]
     public function index(): Response
     {
@@ -22,7 +28,7 @@ class AddressController extends AbstractController
     }
 
     #[Route('compte/adresses/ajouter', name: 'account_address_new')]
-    public function add(Request $request, EntityManagerInterface $em, SessionInterface $session): Response
+    public function add(Request $request, EntityManagerInterface $em): Response
     {
         $address = new Address();
         $form = $this->createForm(AddressType::class, $address);
@@ -34,8 +40,8 @@ class AddressController extends AbstractController
 
             $em->persist($address);
             $em->flush();
-            if ($session->get('order') === 1) {       //Redirection vers la commande si celle-ci a été amorcée
-                $session->set('order', 0);
+            if ($this->getSession()->get('order') === 1) {       //Redirection vers la commande si celle-ci a été amorcée
+                $this->getSession()->set('order', 0);
                 return $this->redirectToRoute('order');
             }
             return $this->redirectToRoute('account_address');
@@ -44,6 +50,10 @@ class AddressController extends AbstractController
         return $this->renderForm('account/address_form.html.twig', [
             'form' => $form
         ]);
+    }
+    private function getSession(): SessionInterface
+    {
+        return $this->requestStack->getSession();
     }
 
     #[Route('compte/adresses/modifier/{id}', name: 'account_address_update')]

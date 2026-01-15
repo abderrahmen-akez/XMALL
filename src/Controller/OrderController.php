@@ -12,9 +12,26 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class OrderController extends AbstractController
 {
+    private RequestStack $requestStack;
+    // private SessionInterface $session; // Optionnel, tu peux le garder comme alias
+
+    public function __construct(
+        RequestStack $requestStack
+        // autres arguments...
+    ) {
+        $this->requestStack = $requestStack;
+        //$this->getSession = $requestStack->getSession(); // si tu veux un alias
+    }
+
+    // Dans toutes les méthodes où tu utilisais $this->session :
+    private function getSession(): SessionInterface
+    {
+        return $this->requestStack->getSession();
+    }
     /**
      * Récupération du panier, choix de l'adresse et du transporteur
      *
@@ -23,7 +40,7 @@ class OrderController extends AbstractController
      * @return Response
      */
     #[Route('/commande', name: 'order')]
-    public function index(SessionInterface $session, Cart $cart): Response
+    public function index(Cart $cart): Response
     {
         $user = $this->getUser();
         $cartProducts = $cart->getDetails();
@@ -35,7 +52,7 @@ class OrderController extends AbstractController
         
         //Redirection si utilisateur n'a pas encore d'adresse
         if (!$user->getAddresses()->getValues()) {      //getValues() Récupère directement les valeurs d'une collection d'objet
-            $session->set('order', 1);
+            $this->getSession()->set('order', 1);
             return $this->redirectToRoute('account_address_new');
         }
 
