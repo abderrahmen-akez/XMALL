@@ -1,0 +1,34 @@
+###> symfony/framework-bundle ###
+/.env.local
+/.env.local.php
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
+/var/
+/vendor/
+###< symfony/framework-bundle ###
+
+# Cache & logs Symfony
+/var/cache/*
+!/var/cache/.gitkeep
+/var/log/*
+!/var/log/.gitkeep
+
+# Sessions
+/var/sessions/*
+!/var/sessions/.gitkeep
+
+# Composer
+composer.phar
+vendor/
+
+# IDE / OS files (ajoute selon ton éditeur)
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Fichiers sensibles
+.env
+!.env.dist  # garde .env.dist si tu en as un
