@@ -105,6 +105,10 @@
         "symfony": {
             "allow-contrib": false,
             "require": "7.4.*"
+        },
+        "runtime": {
+            "class": "Symfony\\Component\\Runtime\\SymfonyRuntime",
+            "disable_dotenv": true
         }
     }
 }
