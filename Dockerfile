@@ -1,28 +1,32 @@
-# syntax=docker/dockerfile:1
-FROM php:8.2-apache
+FROM php:8.2-fpm
 
-# Install dependencies
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     libzip-dev \
     unzip \
     git \
-    && docker-php-ext-install pdo_mysql zip intl gd
+    libicu-dev \
+    libpng-dev \
+    libjpeg62-turbo-dev \
+    libfreetype6-dev \
+    libwebp-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+    && docker-php-ext-install -j$(nproc) \
+        pdo_mysql \
+        zip \
+        intl \
+        gd \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Apache config
-RUN a2enmod rewrite
-
+# Ton code Symfony
 WORKDIR /var/www/html
 COPY . .
 
+# Exemple : installe dépendances Composer en prod
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# Permissions
-RUN chown -R www-data:www-data var/
+# Permissions (optionnel pour Symfony)
+RUN chown -R www-data:www-data var/ public/
 
-# Expose port
-EXPOSE 80
-
-CMD ["apache2-foreground"]
+CMD ["php-fpm"]
