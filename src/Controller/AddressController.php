@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 class AddressController extends AbstractController
 {
-    private Symfony\Component\HttpFoundation\RequestStack $requestStack;
+    private readonly Symfony\Component\HttpFoundation\RequestStack $requestStack;
     public function __construct(RequestStack $requestStack) 
     {
         $this->requestStack = $requestStacks;

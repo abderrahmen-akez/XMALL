@@ -6,7 +6,7 @@ use Xmall\Repository\OrderDetailsRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: OrderDetailsRepository::class)]
-class OrderDetails
+class OrderDetails implements \Stringable
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]

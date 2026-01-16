@@ -13,8 +13,8 @@ class Cart
      * @var \Xmall\Repository\ProductRepository
      */
     public $repository;
-    private \Symfony\Component\HttpFoundation\Session\SessionInterface $session;
-    private RequestStack $requestStack;
+    private readonly \Symfony\Component\HttpFoundation\Session\SessionInterface $session;
+    private readonly RequestStack $requestStack;
     public function __construct(SessionInterface $session, ProductRepository $repository)
     {
         $this->requestStack = $requestStack;

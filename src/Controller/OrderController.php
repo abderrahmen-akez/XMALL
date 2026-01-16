@@ -16,14 +16,12 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 class OrderController extends AbstractController
 {
-    private RequestStack $requestStack;
     // private SessionInterface $session; // Optionnel, tu peux le garder comme alias
 
     public function __construct(
-        RequestStack $requestStack
+        private readonly RequestStack $requestStack
         // autres arguments...
     ) {
-        $this->requestStack = $requestStack;
         //$this->getSession = $requestStack->getSession(); // si tu veux un alias
     }
 
