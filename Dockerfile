@@ -8,7 +8,7 @@ RUN apk add --no-cache \
     libpng-dev \
     libjpeg-turbo-dev \
     freetype-dev \
-    webp-dev \
+    libwebp-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install -j$(nproc) \
         pdo_mysql \
@@ -16,6 +16,7 @@ RUN apk add --no-cache \
         intl \
         gd \
     && apk del --no-cache $PHPIZE_DEPS
+
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
