@@ -1,32 +1,41 @@
-FROM php:8.2-fpm
+FROM php:8.2-fpm-alpine
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apk add --no-cache \
     libzip-dev \
     unzip \
     git \
-    libicu-dev \
+    icu-dev \
     libpng-dev \
-    libjpeg62-turbo-dev \
-    libfreetype6-dev \
-    libwebp-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
+    webp-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install -j$(nproc) \
         pdo_mysql \
         zip \
         intl \
         gd \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    && apk del --no-cache $PHPIZE_DEPS
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Ton code Symfony
 WORKDIR /var/www/html
 COPY . .
 
-# Exemple : installe dépendances Composer en prod
-RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts --no-progress --prefer-dist
-RUN APP_ENV=prod APP_SECRET=dummy_secret php bin/console cache:warmup || true
-# Permissions (optionnel pour Symfony)
-RUN chown -R www-data:www-data var/ public/
+ENV APP_ENV=prod
+ENV APP_SECRET=dummy_secret_for_build_only_32_chars_long_enough
+
+RUN composer install \
+    --no-dev \
+    --optimize-autoloader \
+    --no-interaction \
+    --no-scripts \
+    --no-progress \
+    --prefer-dist
+
+RUN mkdir -p var/cache var/log var/sessions \
+    && chown -R www-data:www-data var/ public/
+
+RUN php bin/console cache:warmup --env=prod || true
 
 CMD ["php-fpm"]
