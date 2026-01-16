@@ -24,8 +24,8 @@ WORKDIR /var/www/html
 COPY . .
 
 # Exemple : installe dépendances Composer en prod
-RUN composer install --no-dev --optimize-autoloader --no-interaction
-
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts --no-progress --prefer-dist
+RUN APP_ENV=prod APP_SECRET=dummy_secret php bin/console cache:warmup || true
 # Permissions (optionnel pour Symfony)
 RUN chown -R www-data:www-data var/ public/
 
