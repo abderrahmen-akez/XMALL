@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: xmall
+    env: php
+    plan: free  # ou starter si besoin plus tard
+    buildCommand: |
+      composer install --no-dev --optimize-autoloader
+      php bin/console cache:clear --env=prod
+      php bin/console assets:install public
+    startCommand: heroku-php-apache2 public/  # ou php -S 0.0.0.0:$PORT -t public
+    envVars:
+      - key: APP_ENV
+        value: prod
+      - key: APP_SECRET
+        sync: false  # ajoute manuellement après
+      - key: DATABASE_URL
+        value: sqlite:///%kernel.project_dir%/var/data.db  # pour test SQLite
+      # Ajoute tes clés Stripe/Mailjet ici ou via dashboard
