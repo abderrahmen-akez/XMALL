@@ -58,7 +58,7 @@ class OrderController extends AbstractController
             'user' => $user     //Permet de passer l'utilisateur courant dans le tableau d'options du OrderType
         ]); 
 
-        return $this->renderForm('order/index.html.twig', [
+        return $this->render('order/index.html.twig', [
             'form' => $form,
             'cart' => $cartProducts,
             'totalPrice' =>$cartProducts['totals']['price']
@@ -127,7 +127,7 @@ class OrderController extends AbstractController
             $em->flush();
 
             // Affichage récap
-            return $this->renderForm('order/add.html.twig', [
+            return $this->render('order/add.html.twig', [
                 'cart' => $cartProducts,
                 'totalPrice' =>$cartProducts['totals']['price'],
                 'order' => $order

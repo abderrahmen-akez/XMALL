@@ -59,7 +59,7 @@ class AccountController extends AbstractController
             }
         }
 
-        return $this->renderForm('account/password.html.twig', [
+        return $this->render('account/password.html.twig', [
             'form' => $form
         ]);
     }

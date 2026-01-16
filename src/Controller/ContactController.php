@@ -22,10 +22,10 @@ class ContactController extends AbstractController
             $datas = $form->getData();
             $content = "De la part de : {$datas['firstname']} {$datas['lastname']} <br> Message : {$datas['content']} <br> Email: {$datas['email']}";
             $mail = new Mail();
-            $mail->send('bonnal.tristan91@gmail.com', 'Tristan', 'Contact visiteur La Boot\'ique', $content);
+            $mail->send('abderrahmen.akkez@gmail.com', 'Abderrahmen', 'Contact visiteur XMALL', $content);
         }
 
-        return $this->renderForm('contact/index.html.twig', [
+        return $this->render('contact/index.html.twig', [
             'form' => $form,
         ]);
     }

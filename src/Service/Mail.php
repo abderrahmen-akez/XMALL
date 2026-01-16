@@ -19,7 +19,7 @@ class Mail
                 [
                     'From' => 
                     [
-                        'Email' => "bonnal.tristan@hotmail.fr",
+                        'Email' => "abderrahmen.akkez@gmail.com",
                         'Name' => "XMALL"
                     ],
                     'To' => 

@@ -283,28 +283,7 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`id`, `email`, `roles`, `password`, `firstname`, `lastname`) VALUES
-(1, 'qila@mailinator.com', '[]', '$2y$13$XJ6eO87g5wbbYo1VVGsSa.K3ZoY3nxb/AP7jesP.B4pQ5uCTPnWta', 'Abel', 'Cook'),
-(2, 'bewebokyt@mailinator.com', '[]', '$2y$13$hbsvJpSPsTAifkSz7EKdnek5JELREFm7AcAD2waapW.CGbPPb9/Xa', 'Cameran', 'Santana'),
-(3, 'zohova@mailinator.com', '[]', '$2y$13$V8gb44ppyH26z1aGFrrrg.YHVwNCrO2uoDCODyAqkKb3IehWYw/de', 'Demetrius', 'Barron'),
-(5, 'pybozy@mailinator.com', '[]', '$2y$13$TIqH1opO82k7lhHZIQx3RuJcMOOZd4wgpILAC8BQ7Fm0L31Lhrop2', 'Benedict', 'Parker'),
-(6, 'doqyre@mailinator.com', '[]', '$2y$13$aS8uwK/U422zKIQPZVan6.xxXHbKDLe0QBu3BrA6cv3bT8NJydCFi', 'Kaseem', 'Boyd'),
-(7, 'admin@admin.com', '[]', '$2y$13$sfixY8eaiATRLoXXOsAPHeONkAzCrsnP9tdIOBRgnpxc3ROBgvREW', 'Sierra', 'Michael'),
-(8, 'zofyd@mailinator.com', '[]', '$2y$13$5eh2MdTTmp3saxjVSdSDpuuI1U4OFVbfj9rLOMK0MZOeatvcPciSa', 'Portia', 'Rasmussen'),
-(9, 'qijab@mailinator.com', '[]', '$2y$13$kZAwoyXojOm5KZWhSGH3aeAaYe1DU3pBkqHnD7Qz328dpbPHuu1L6', 'Ivana', 'Roberson'),
-(10, 'suvymez@mailinator.com', '[]', '$2y$13$ygkBzDRFAqErEjNg84CwEOeN3UjCE.QaaGALDmykqQBvP/WIuKF4.', 'Selma', 'Rice'),
-(11, 'lykeho@mailinator.com', '[]', '$2y$13$rYh3reJhPHOthgfaKhz/e..5ghtSb0RgIDZQT98iJLyvjmwRhMl0G', 'Amity', 'Myers'),
-(12, 'tygemu@mailinator.com', '[]', '$2y$13$nYHb/cULNrIAdteSAtJSiOy4wkZbxfYeAY4los.C9BOBBczF09P0e', 'Alexis', 'Underwood'),
-(14, 'wozowiwydi@mailinator.com', '[]', '$2y$13$AFkNQqYChQC6bDQWuO0eVeIhu9jnEMpSCk4e0bT.Cc6gCGWoXHZEi', 'Dustin', 'Collins'),
-(16, 'maqatoked@mailinator.com', '[]', '$2y$13$gxSZ/IWhSlUbOeMJpA.qBejCfpRgj1Zz4YgQ0Q7OII51YwzVFjBpW', 'Imani', 'Hodge'),
-(17, 'vimelabe@mailinator.com', '[]', '$2y$13$3kJHAAwcWz8/UY7EBPFeIOkfzwrz9HXv2vOZjiA/veXiZr14XGeTi', 'Imogene', 'Mccormick'),
-(18, 'dakyridut@mailinator.com', '[\"ROLE_ADMIN\"]', '$2y$13$hi0ATGo5E4HiBtd98kjEoud.CYeEwTUg07dP0vZHVayIYttmK0yqy', 'Gregory', 'Garcia'),
-(19, 'kepuxonybu@mailinator.com', '[]', '$2y$13$/RrdovSw1MccwGOhMACuAu1SJYnj1IE3C2lTzjSTgn56Nb99ALCN6', 'Dominic', 'Miles'),
-(20, 'xowogavibe@mailinator.com', '[]', '$2y$13$qflQJ4yFJ0xtHsd.el.BYezdsmxTiMifkhcaB.Y.JcpAeBqggUt86', 'Trevor', 'Durham'),
-(25, 'pureni@mailinator.com', '[]', '$2y$13$k5rLWE3mYj5ky4oZV1KUNuSSmUQAa.yEOYcNAqOv7FJ9FIaRIy8Ny', 'Lewis', 'Love'),
-(26, 'mykopynena@mailinator.com', '[]', '$2y$13$G4nys/saDA5GRlTouafl/O8jXA.PUbCwh9iao.ZSvRJH889HliHn.', 'Willow', 'Rice'),
-(27, 'bonnal.tristan91@gmail.com', '[]', '$2y$13$7L4y2VHPe6dqXhCjfSzybO1BWzeYC0usC06KRdycu6xScOvWaJJuS', 'Ainsley', 'Burris'),
-(28, 'tegyzob@mailinator.com', '[]', '$2y$13$hdW4kLBteLo0LC5sftuN2.XfJ8mQEuR/ccq.pfBJha46xY8cG1lm.', 'Brendan', 'Cardenas'),
-(29, 'wemuj@mailinator.com', '[]', '$2y$13$/JPcAgc9.rFAs/gZRXKEZugbFC23hY1F5P1cRSio3U9PkrxEIb0Ai', 'Lois', 'Levy');
+
 
 --
 -- Index pour les tables déchargées

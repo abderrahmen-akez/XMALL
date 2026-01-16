@@ -14,10 +14,10 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 class AddressController extends AbstractController
 {
-    private readonly Symfony\Component\HttpFoundation\RequestStack $requestStack;
+    private RequestStack $requestStack;
     public function __construct(RequestStack $requestStack) 
     {
-        $this->requestStack = $requestStacks;
+        $this->requestStack = $requestStack;
     }
     #[Route('compte/adresses', name: 'account_address')]
     public function index(): Response
@@ -47,7 +47,7 @@ class AddressController extends AbstractController
             return $this->redirectToRoute('account_address');
         }
 
-        return $this->renderForm('account/address_form.html.twig', [
+        return $this->render('account/address_form.html.twig', [
             'form' => $form
         ]);
     }
@@ -74,7 +74,7 @@ class AddressController extends AbstractController
             return $this->redirectToRoute('account_address');
         }
 
-        return $this->renderForm('account/address_form.html.twig', [
+        return $this->render('account/address_form.html.twig', [
             'form' => $form
         ]);
     }

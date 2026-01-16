@@ -3,26 +3,33 @@ namespace Xmall\Model;
 
 use Xmall\Repository\ProductRepository;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Permet de gérer un panier en session plutot que de tout implémenter dans le controller
  */
 class Cart 
 {
+    private RequestStack $requestStack;
     /**
      * @var \Xmall\Repository\ProductRepository
      */
     public $repository;
     private readonly \Symfony\Component\HttpFoundation\Session\SessionInterface $session;
-    private readonly RequestStack $requestStack;
-    public function __construct(SessionInterface $session, ProductRepository $repository)
+    public function __construct(RequestStack $requestStack, ProductRepository $repository)
     {
         $this->requestStack = $requestStack;
         $this->repository = $repository;
     }
     private function getSession(): SessionInterface
     {
-        return $this->requestStack->getSession();
+        $request = $this->requestStack->getCurrentRequest();
+
+        if (null === $request) {
+            throw new \RuntimeException('No active request - session not available.');
+        }
+
+        return $request->getSession();
     }
 
 
