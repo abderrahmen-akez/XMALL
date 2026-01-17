@@ -25,6 +25,7 @@ COPY . .
 
 ENV APP_ENV=prod
 ENV APP_SECRET=dummy_for_build_only_32_chars_long_enough
+ENV APP_DEBUG=0
 
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts --no-progress --prefer-dist
 
@@ -32,24 +33,24 @@ RUN mkdir -p var/cache var/log var/sessions public \
     && chown -R www-data:www-data var/ public/ \
     && chmod -R 775 var/
 
-RUN APP_DEBUG=0 php bin/console cache:warmup || true
+RUN php bin/console cache:warmup || true
 
-RUN echo "server { \
-    listen \${PORT:-10000}; \
-    server_name localhost; \
-    root /var/www/html/public; \
-    index index.php; \
-    location / { \
-        try_files \$uri /index.php\$is_args\$args; \
-    } \
-    location ~ \.php$ { \
-        fastcgi_pass 127.0.0.1:9000; \
-        fastcgi_index index.php; \
-        include fastcgi_params; \
-        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name; \
-    } \
-}" > /etc/nginx/http.d/default.conf
+COPY <<EOF /etc/nginx/http.d/default.conf.template
+server {
+    listen \$PORT;
+    server_name localhost;
+    root /var/www/html/public;
+    index index.php;
+    location / {
+        try_files \$uri /index.php\$is_args\$args;
+    }
+    location ~ \.php$ {
+        fastcgi_pass 127.0.0.1:9000;
+        fastcgi_index index.php;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
+    }
+}
+EOF
 
-EXPOSE ${PORT:-10000}
-
-CMD ["sh", "-c", "php-fpm -D & nginx -g 'daemon off;'"]
+CMD ["sh", "-c", "envsubst '$PORT' < /etc/nginx/http.d/default.conf.template > /etc/nginx/http.d/default.conf && php-fpm -D && nginx -g 'daemon off;'"]
