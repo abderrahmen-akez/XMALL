@@ -40,10 +40,10 @@ RUN mkdir -p var/cache var/log var/sessions public \
 # Warmup cache (ignore erreurs)
 RUN php bin/console cache:warmup || true
 
-# Nginx config template (fix try_files avec $uri/ pour directories)
+# Nginx config template (fix substitution with ${PORT:-10000} for default)
 COPY <<EOF /etc/nginx/http.d/default.conf.template
 server {
-    listen $PORT;
+    listen ${PORT:-10000};
     server_name localhost;
     root /var/www/html/public;
     index index.php;
