@@ -1,5 +1,6 @@
 FROM php:8.2-fpm-alpine
 
+# Installe dépendances + extensions (avec gettext pour envsubst)
 RUN apk add --no-cache \
     libzip-dev \
     unzip \
@@ -9,7 +10,7 @@ RUN apk add --no-cache \
     libjpeg-turbo-dev \
     freetype-dev \
     libwebp-dev \
-    gettext \ 
+    gettext \
     nginx \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install -j$(nproc) \
@@ -19,7 +20,7 @@ RUN apk add --no-cache \
         gd \
     && apk del --no-cache $PHPIZE_DEPS
 
-
+# Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
@@ -31,30 +32,34 @@ ENV APP_DEBUG=0
 
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts --no-progress --prefer-dist
 
+# Crée dossiers et permissions
 RUN mkdir -p var/cache var/log var/sessions public \
     && chown -R www-data:www-data var/ public/ \
     && chmod -R 775 var/
 
+# Warmup cache (ignore erreurs)
 RUN php bin/console cache:warmup || true
 
+# Nginx config template (fix try_files avec $uri/ pour directories)
 COPY <<EOF /etc/nginx/http.d/default.conf.template
 server {
-    listen \$PORT;
+    listen $PORT;
     server_name localhost;
     root /var/www/html/public;
     index index.php;
     location / {
-        try_files \$uri /index.php\$is_args\$args;
+        try_files $uri $uri/ /index.php$is_args$args;
     }
     location ~ \.php$ {
         fastcgi_pass 127.0.0.1:9000;
         fastcgi_index index.php;
         include fastcgi_params;
-        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
     }
 }
 EOF
 
 EXPOSE ${PORT:-10000}
 
+# CMD : envsubst le conf, puis lance php-fpm + nginx
 CMD ["sh", "-c", "envsubst < /etc/nginx/http.d/default.conf.template > /etc/nginx/http.d/default.conf && php-fpm -D && nginx -g 'daemon off;'"]
