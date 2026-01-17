@@ -9,6 +9,7 @@ RUN apk add --no-cache \
     libjpeg-turbo-dev \
     freetype-dev \
     libwebp-dev \
+    gettext \   # ← Ajout ici : pour envsubst
     nginx \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install -j$(nproc) \
@@ -17,6 +18,7 @@ RUN apk add --no-cache \
         intl \
         gd \
     && apk del --no-cache $PHPIZE_DEPS
+
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
@@ -53,4 +55,6 @@ server {
 }
 EOF
 
-CMD ["sh", "-c", "envsubst '$PORT' < /etc/nginx/http.d/default.conf.template > /etc/nginx/http.d/default.conf && php-fpm -D && nginx -g 'daemon off;'"]
+EXPOSE ${PORT:-10000}
+
+CMD ["sh", "-c", "envsubst < /etc/nginx/http.d/default.conf.template > /etc/nginx/http.d/default.conf && php-fpm -D && nginx -g 'daemon off;'"]
