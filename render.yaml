@@ -14,7 +14,7 @@ services:
       - key: APP_SECRET
         sync: false
       - key: DATABASE_URL
-        value: sqlite:///%kernel.project_dir%/var/data.db
+        value: postgresql://postgres:[YOUR-PASSWORD]@db.cnjyaazngtylmzuqlmly.supabase.co:5432/postgres
       - key: STRIPE_SECRET_KEY
         sync: false
       - key: STRIPE_PUBLIC_KEY
