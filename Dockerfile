@@ -1,6 +1,5 @@
 FROM php:8.2-fpm-alpine
 
-# Installe dépendances + extensions (avec gettext pour envsubst)
 RUN apk add --no-cache \
     libzip-dev \
     unzip \
@@ -20,7 +19,6 @@ RUN apk add --no-cache \
         gd \
     && apk del --no-cache $PHPIZE_DEPS
 
-# Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
@@ -32,18 +30,15 @@ ENV APP_DEBUG=0
 
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts --no-progress --prefer-dist
 
-# Crée dossiers et permissions
 RUN mkdir -p var/cache var/log var/sessions public \
     && chown -R www-data:www-data var/ public/ \
     && chmod -R 775 var/
 
-# Warmup cache (ignore erreurs)
 RUN php bin/console cache:warmup || true
 
-# Nginx config template (fix expansion avec ${PORT} et quotes full)
 COPY <<EOF /etc/nginx/http.d/default.conf.template
 server {
-    listen 0.0.0.0:${PORT};
+    listen 0.0.0.0:${PORT:-10000};
     server_name localhost;
     root /var/www/html/public;
     index index.php;
@@ -61,5 +56,4 @@ EOF
 
 EXPOSE ${PORT:-10000}
 
-# CMD : envsubst le conf, puis lance php-fpm + nginx
 CMD ["sh", "-c", "envsubst < /etc/nginx/http.d/default.conf.template > /etc/nginx/http.d/default.conf && php-fpm -D && nginx -g 'daemon off;'"]
