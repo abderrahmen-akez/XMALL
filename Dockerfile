@@ -9,7 +9,7 @@ RUN apk add --no-cache \
     libjpeg-turbo-dev \
     freetype-dev \
     libwebp-dev \
-    gettext \   # ← Ajout ici : pour envsubst
+    gettext \ 
     nginx \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install -j$(nproc) \
