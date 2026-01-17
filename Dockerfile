@@ -40,10 +40,10 @@ RUN mkdir -p var/cache var/log var/sessions public \
 # Warmup cache (ignore erreurs)
 RUN php bin/console cache:warmup || true
 
-# Nginx config template (fix fastcgi_param with quotes + listen 0.0.0.0:$PORT)
+# Nginx config template (fix expansion avec ${PORT} et quotes full)
 COPY <<EOF /etc/nginx/http.d/default.conf.template
 server {
-    listen 0.0.0.0:$PORT;
+    listen 0.0.0.0:${PORT};
     server_name localhost;
     root /var/www/html/public;
     index index.php;
