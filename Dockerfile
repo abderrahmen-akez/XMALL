@@ -1,0 +1,55 @@
+FROM php:8.2-fpm-alpine
+
+RUN apk add --no-cache \
+    libzip-dev \
+    unzip \
+    git \
+    icu-dev \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
+    libwebp-dev \
+    nginx \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+    && docker-php-ext-install -j$(nproc) \
+        pdo_mysql \
+        zip \
+        intl \
+        gd \
+    && apk del --no-cache $PHPIZE_DEPS
+
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+WORKDIR /var/www/html
+COPY . .
+
+ENV APP_ENV=prod
+ENV APP_SECRET=dummy_for_build_only_32_chars_long_enough
+
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts --no-progress --prefer-dist
+
+RUN mkdir -p var/cache var/log var/sessions public \
+    && chown -R www-data:www-data var/ public/ \
+    && chmod -R 775 var/
+
+RUN APP_DEBUG=0 php bin/console cache:warmup || true
+
+RUN echo "server { \
+    listen \${PORT:-10000}; \
+    server_name localhost; \
+    root /var/www/html/public; \
+    index index.php; \
+    location / { \
+        try_files \$uri /index.php\$is_args\$args; \
+    } \
+    location ~ \.php$ { \
+        fastcgi_pass 127.0.0.1:9000; \
+        fastcgi_index index.php; \
+        include fastcgi_params; \
+        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name; \
+    } \
+}" > /etc/nginx/http.d/default.conf
+
+EXPOSE ${PORT:-10000}
+
+CMD ["sh", "-c", "php-fpm -D & nginx -g 'daemon off;'"]
