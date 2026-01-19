@@ -24,6 +24,8 @@ when@test:
 
 when@prod:
     doctrine:
+        dbal:
+            server_version: '3'
         orm:
             auto_generate_proxy_classes: false
             query_cache_driver:
