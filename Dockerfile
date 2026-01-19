@@ -10,13 +10,13 @@ RUN apk add --no-cache \
     libjpeg-turbo-dev \
     freetype-dev \
     libwebp-dev \
-    libpq-dev \  # ← Ajout pour pdo_pgsql (Postgres)
+    libpq-dev \ 
     gettext \
     nginx \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install -j$(nproc) \
-        pdo_mysql \  # Garde si besoin MySQL fallback
-        pdo_pgsql \  # ← Ajout pour PostgreSQL
+        pdo_mysql \ 
+        pdo_pgsql \  
         zip \
         intl \
         gd \
