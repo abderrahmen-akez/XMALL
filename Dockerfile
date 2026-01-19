@@ -1,15 +1,7 @@
-# Étape 1 : Builder Composer
-FROM composer:latest AS composer
-WORKDIR /app
-COPY . .
-RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts --prefer-dist
-
-# Étape 2 : Image finale avec PHP + Nginx
 FROM php:8.2-fpm-alpine
 
-# Installe Nginx + extensions PHP
+# Installe dépendances + extensions (ajoute libpq-dev pour pdo_pgsql)
 RUN apk add --no-cache \
-    nginx \
     libzip-dev \
     unzip \
     git \
@@ -18,52 +10,58 @@ RUN apk add --no-cache \
     libjpeg-turbo-dev \
     freetype-dev \
     libwebp-dev \
+    libpq-dev \  # ← Ajout pour pdo_pgsql (Postgres)
+    gettext \
+    nginx \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install -j$(nproc) \
-        pdo_mysql \
+        pdo_mysql \  # Garde si besoin MySQL fallback
+        pdo_pgsql \  # ← Ajout pour PostgreSQL
         zip \
         intl \
         gd \
     && apk del --no-cache $PHPIZE_DEPS
 
-# Copie Composer vendor du builder
-COPY --from=composer /app/vendor /var/www/html/vendor
+# Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copie ton code Symfony
 WORKDIR /var/www/html
 COPY . .
 
-# Configure Nginx pour écouter sur $PORT (défaut 10000 sur Render)
-RUN echo "server { \
-    listen ${PORT:-10000}; \
-    server_name localhost; \
-    root /var/www/html/public; \
-    index index.php; \
-    location / { \
-        try_files \$uri /index.php\$is_args\$args; \
-    } \
-    location ~ \.php$ { \
-        fastcgi_pass 127.0.0.1:9000; \
-        fastcgi_index index.php; \
-        include fastcgi_params; \
-        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name; \
-    } \
-}" > /etc/nginx/http.d/default.conf
-
-# Crée dossiers var/ + permissions (fix permission denied)
-RUN mkdir -p var/cache/prod var/log var/sessions public \
-    && chown -R www-data:www-data var/ public/ \
-    && chmod -R 777 var/  # Force 777 pour prod Docker (test only, change to 775 after)
-
-# Variables pour build
 ENV APP_ENV=prod
-ENV APP_SECRET=dummy_secret_for_build_only_32_chars_long_enough
+ENV APP_SECRET=dummy_for_build_only_32_chars_long_enough
+ENV APP_DEBUG=0
+
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts --no-progress --prefer-dist
+
+# Crée dossiers et permissions
+RUN mkdir -p var/cache var/log var/sessions public \
+    && chown -R www-data:www-data var/ public/ \
+    && chmod -R 775 var/
 
 # Warmup cache (ignore erreurs)
-RUN php bin/console cache:warmup --env=prod || true
+RUN php bin/console cache:warmup || true
 
-# Expose le port (optionnel, mais aide Render à détecter)
+# Nginx config template (fix try_files avec $uri/ pour directories)
+COPY <<EOF /etc/nginx/http.d/default.conf.template
+server {
+    listen 0.0.0.0:${PORT:-10000};
+    server_name localhost;
+    root /var/www/html/public;
+    index index.php;
+    location / {
+        try_files $uri $uri/ /index.php$is_args$args;
+    }
+    location ~ \.php$ {
+        fastcgi_pass 127.0.0.1:9000;
+        fastcgi_index index.php;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME "$document_root$fastcgi_script_name";
+    }
+}
+EOF
+
 EXPOSE ${PORT:-10000}
 
-# Lance Nginx + PHP-FPM en foreground
-CMD ["sh", "-c", "php-fpm & nginx -g 'daemon off;'"]
+# CMD : envsubst le conf, puis lance php-fpm + nginx
+CMD ["sh", "-c", "envsubst < /etc/nginx/http.d/default.conf.template > /etc/nginx/http.d/default.conf && php-fpm -D && nginx -g 'daemon off;'"]
