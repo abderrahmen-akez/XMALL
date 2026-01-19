@@ -3,8 +3,8 @@ services:
     name: xmall
     env: docker
     plan: free
-    dockerfilePath: Dockerfile
-    dockerContext: .
+    dockerfilePath: Dockerfile 
+    dockerContext: .  # Contexte racine
     autoDeploy: true
     envVars:
       - key: APP_ENV
@@ -12,7 +12,7 @@ services:
       - key: APP_DEBUG
         value: 0
       - key: APP_SECRET
-        sync: false
+        sync: false  # Ajoute dans dashboard (random 32 chars)
       - key: DATABASE_URL
         value: sqlite:///%kernel.project_dir%/var/data.db
       - key: STRIPE_SECRET_KEY
