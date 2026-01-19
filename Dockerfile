@@ -43,6 +43,12 @@ server {
     server_name localhost;
     root /var/www/html/public;
     index index.php;
+
+    # Force HTTPS redirect (fix 301 loop)
+    if ($scheme = http) {
+        return 301 https://$host$request_uri;
+    }
+
     location / {
         try_files $uri $uri/ /index.php$is_args$args;
     }
@@ -51,6 +57,7 @@ server {
         fastcgi_index index.php;
         include fastcgi_params;
         fastcgi_param SCRIPT_FILENAME "$document_root$fastcgi_script_name";
+        fastcgi_param HTTPS on;  # Tell Symfony it's HTTPS
     }
 }
 EOF
