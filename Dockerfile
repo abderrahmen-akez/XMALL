@@ -1,6 +1,5 @@
 FROM php:8.2-fpm-alpine
 
-# Installe dépendances + extensions (ajoute libpq-dev pour pdo_pgsql)
 RUN apk add --no-cache \
     libzip-dev \
     unzip \
@@ -10,19 +9,17 @@ RUN apk add --no-cache \
     libjpeg-turbo-dev \
     freetype-dev \
     libwebp-dev \
-    libpq-dev \ 
+    libpq-dev \
     gettext \
     nginx \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install -j$(nproc) \
-        pdo_mysql \ 
-        pdo_pgsql \  
+        pdo_mysql pdo_pgsql \
         zip \
         intl \
         gd \
     && apk del --no-cache $PHPIZE_DEPS
 
-# Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
@@ -34,15 +31,12 @@ ENV APP_DEBUG=0
 
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts --no-progress --prefer-dist
 
-# Crée dossiers et permissions
-RUN mkdir -p var/cache var/log var/sessions public \
+RUN mkdir -p var/cache/prod var/log var/sessions public \
     && chown -R www-data:www-data var/ public/ \
-    && chmod -R 775 var/
+    && chmod -R 777 var/  # Fix permission denied
 
-# Warmup cache (ignore erreurs)
 RUN php bin/console cache:warmup || true
 
-# Nginx config template (fix try_files avec $uri/ pour directories)
 COPY <<EOF /etc/nginx/http.d/default.conf.template
 server {
     listen 0.0.0.0:${PORT:-10000};
@@ -63,5 +57,4 @@ EOF
 
 EXPOSE ${PORT:-10000}
 
-# CMD : envsubst le conf, puis lance php-fpm + nginx
 CMD ["sh", "-c", "envsubst < /etc/nginx/http.d/default.conf.template > /etc/nginx/http.d/default.conf && php-fpm -D && nginx -g 'daemon off;'"]
