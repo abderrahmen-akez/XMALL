@@ -33,35 +33,30 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --no-script
 
 RUN mkdir -p var/cache/prod var/log var/sessions public \
     && chown -R www-data:www-data var/ public/ \
-    && chmod -R 777 var/  # Fix permission denied
+    && chmod -R 777 var/
 
 RUN php bin/console cache:warmup || true
 
-COPY <<EOF /etc/nginx/http.d/default.conf.template
+COPY <<EOF /etc/nginx/http.d/default.conf
 server {
     listen 0.0.0.0:${PORT:-10000};
     server_name localhost;
     root /var/www/html/public;
     index index.php;
 
-    # Force HTTPS redirect (fix 301 loop)
-    if ($scheme = http) {
-        return 301 https://$host$request_uri;
-    }
-
     location / {
         try_files $uri $uri/ /index.php$is_args$args;
     }
+
     location ~ \.php$ {
         fastcgi_pass 127.0.0.1:9000;
         fastcgi_index index.php;
         include fastcgi_params;
         fastcgi_param SCRIPT_FILENAME "$document_root$fastcgi_script_name";
-        fastcgi_param HTTPS on;  # Tell Symfony it's HTTPS
     }
 }
 EOF
 
 EXPOSE ${PORT:-10000}
 
-CMD ["sh", "-c", "envsubst < /etc/nginx/http.d/default.conf.template > /etc/nginx/http.d/default.conf && php-fpm -D && nginx -g 'daemon off;'"]
+CMD ["sh", "-c", "php-fpm -D && nginx -g 'daemon off;'"]
