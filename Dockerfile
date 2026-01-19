@@ -50,10 +50,10 @@ RUN echo "server { \
     } \
 }" > /etc/nginx/http.d/default.conf
 
-# Crée dossiers var/ + permissions
-RUN mkdir -p var/cache var/log var/sessions public \
+# Crée dossiers var/ + permissions (fix permission denied)
+RUN mkdir -p var/cache/prod var/log var/sessions public \
     && chown -R www-data:www-data var/ public/ \
-    && chmod -R 775 var/
+    && chmod -R 777 var/  # Force 777 pour prod Docker (test only, change to 775 after)
 
 # Variables pour build
 ENV APP_ENV=prod
